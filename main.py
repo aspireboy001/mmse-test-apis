@@ -14,7 +14,11 @@ def process_clock_image():
     time = request.form.get('time')
     uploaded_file  = request.files['image']
 
-    score = 0.0 
+    total_score = 0.0 
+    circle_score = 0.0
+    digits_score = 0.0
+    lines_score = 0.0 
+    time_match_score = 0.0 
 
     #step1 
     file_array = np.frombuffer(uploaded_file.read(), np.uint8)
@@ -26,24 +30,24 @@ def process_clock_image():
     circle_info = detect_circle(processed_image)
     if circle_info is not None:
         center, radius, circularity = circle_info
-        score += circularity
+        circle_score = circularity
     else:
         # Set default values
         height, width = processed_image.shape[:2]
         center = (width // 2, height // 2)
         radius = height // 2
         circularity = 0
-    print("score after circle:",score)
+    print("score after circle:",circle_score)
     #step3
     numbers = extract_handwritten_numbers(processed_image)
-    score += (min(12,len(numbers)))/10 
+    digits_score = (min(12,len(numbers)))/10 
 
-    print("score after digits:",score)
+    print("score after digits:",digits_score)
 
     #step4
     lines_in_circle = detect_lines_in_circle(processed_image, center, radius)
-    score += min(2,len(lines_in_circle)*0.5 )
-    print("score after lines:",score)
+    lines_score = min(2,len(lines_in_circle)*0.5 )
+    print("score after lines:",lines_score)
 
     #step5
     numbers = determine_numbers(lines_in_circle)
@@ -58,15 +62,22 @@ def process_clock_image():
             temp = str(timing[0]) + ":" + str(timing[1]) 
             match = max(match,calculate_score(time,temp))
     
-    score += match 
-    print("score after match:",score)
+    time_match_score = match 
+    total_score = circle_score + digits_score + lines_score + time_match_score
 
-    response = {'score': score}
+    print("score after match:",time_match_score)
+
+    response = {
+        'total_score': total_score,
+        'circle_score': circle_score,
+        'digits_score': digits_score,
+        'lines_score': lines_score,
+        'time_match_score': time_match_score
+    }
 
     json_response = json.dumps(response)
 
     return json_response, 200, {'Content-Type': 'application/json'} 
-
 
 
 # Verbal Recall Test
