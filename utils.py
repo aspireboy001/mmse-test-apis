@@ -8,7 +8,7 @@ from PIL import Image
 import itertools
 import matplotlib.pyplot as plt
 
-model=load_model('DigitRecognitionModel.h5')
+# model=load_model('DigitRecognitionModel.h5')
 
 # step 1
 def preprocess_image(image):
@@ -103,14 +103,14 @@ def invert_this(image_file, with_plot=False, gray_scale=False):
     image_i = 255 - image_src
     return image_i
 
-def pred(image,ch):
-    image=padding(image)
-    image=invert_this(image, with_plot=True, gray_scale=True) 
-    plt.imshow(image)
-    image = cv2.resize(image, (28, 28))
-    image = image.astype('float32') / 255.0
-    image = image.reshape((1, 28, 28))
-    return (model.predict(image))
+# def pred(image,ch):
+#     image=padding(image)
+#     image=invert_this(image, with_plot=True, gray_scale=True) 
+#     plt.imshow(image)
+#     image = cv2.resize(image, (28, 28))
+#     image = image.astype('float32') / 255.0
+#     image = image.reshape((1, 28, 28))
+#     return (model.predict(image))
 
 def extract_handwritten_numbers(img):
   dimensions=img.shape
@@ -119,38 +119,38 @@ def extract_handwritten_numbers(img):
   result=[]
   dict={}
 
-  for i, contour in enumerate(contours):
-      x, y, w, h = cv2.boundingRect(contour)
-      area = cv2.contourArea(contour)
+  # for i, contour in enumerate(contours):
+  #     x, y, w, h = cv2.boundingRect(contour)
+  #     area = cv2.contourArea(contour)
       
-      asp_ratio=float(w)/h
-      max_h=0.133*dimensions[0]
-      max_w=0.1066*dimensions[0]
-      if  h>max_h or w>max_w: 
-          continue
+  #     asp_ratio=float(w)/h
+  #     max_h=0.133*dimensions[0]
+  #     max_w=0.1066*dimensions[0]
+  #     if  h>max_h or w>max_w: 
+  #         continue
           
-      roi = threshold[y:y + h, x:x + w]
-    #   if i==12:
-    #       cv2.imwrite('output1.jpg', roi)
+  #     roi = threshold[y:y + h, x:x + w]
+  #   #   if i==12:
+  #   #       cv2.imwrite('output1.jpg', roi)
       
-    #   cv2.imwrite('output2.jpg', roi)
-    #   image=cv2.imread('output2.jpg', cv2.IMREAD_GRAYSCALE)
-      image = roi.copy()
-      response=pred(image,0)
-      score=np.max(response)
-      cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 1)
-      score=f'{np.max(response):.10f}'
-      val=response.argmax(axis=1)[0].__str__()
-      result.append(val)
+  #   #   cv2.imwrite('output2.jpg', roi)
+  #   #   image=cv2.imread('output2.jpg', cv2.IMREAD_GRAYSCALE)
+  #     image = roi.copy()
+  #     response=pred(image,0)
+  #     score=np.max(response)
+  #     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 1)
+  #     score=f'{np.max(response):.10f}'
+  #     val=response.argmax(axis=1)[0].__str__()
+  #     result.append(val)
       
-      font = cv2.FONT_HERSHEY_SIMPLEX
-      fontScale = 0.5 
-      if i==15:
-          print(val)
-      color = (255, 0, 0)
-      thickness = 1
-      cv2.putText(img, val, (x, y - 5), font, fontScale, color, thickness)
-      dict[i]=contour
+  #     font = cv2.FONT_HERSHEY_SIMPLEX
+  #     fontScale = 0.5 
+  #     if i==15:
+  #         print(val)
+  #     color = (255, 0, 0)
+  #     thickness = 1
+  #     cv2.putText(img, val, (x, y - 5), font, fontScale, color, thickness)
+  #     dict[i]=contour
 
   return set(result)
 # Extract Handwritten Numbers Ends
