@@ -182,6 +182,8 @@ def detect_lines_in_circle(image, center):
 
 def determine_numbers(lines):
     allNums = {}
+    if lines is None:
+        return allNums
     for line in lines:
         print(line)
         l1_a, l1_b = line
