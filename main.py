@@ -42,11 +42,11 @@ def process_clock_image():
     #step3
     numbers = extract_handwritten_numbers(processed_image)
     digits_score = (min(12,len(numbers)))/10 
-
+    digits_score = 1 ;
     print("score after digits:",digits_score)
 
     #step4
-    lines_in_circle = detect_lines_in_circle(processed_image, center)
+    lines_in_circle = detect_lines_in_circle(image, center)
     if lines_in_circle is not None:
         lines_score = min(2,len(lines_in_circle)*0.5 )
     else:
