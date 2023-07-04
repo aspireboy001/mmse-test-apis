@@ -158,42 +158,23 @@ def extract_handwritten_numbers(img):
 
 
 # step4
-def detect_lines_in_circle(image, center, radius, num_lines=2):
-    try:
-        edges = cv2.Canny(image, threshold1=50, threshold2=150, apertureSize=3)
-
-        lines = cv2.HoughLines(edges, rho=1, theta=np.pi / 180, threshold=100)
-
-        if lines is None:
-            print("No lines detected.")
-            return []
-
-        filtered_lines = []
-        for line in lines:
-            rho, theta = line[0]
-            cos_theta = np.cos(theta)
-            sin_theta = np.sin(theta)
-            x0 = cos_theta * rho
-            y0 = sin_theta * rho
-
-            distance = abs((x0 - center[0]) * cos_theta + (y0 - center[1]) * sin_theta)
-
-            if distance < radius:
-                filtered_lines.append(line)
-
-        if len(filtered_lines) == 0:
-            print("No lines found within the circle.")
-            return []
-
-        filtered_lines.sort(key=lambda line: abs(line[0][0] - radius))
-
-        closest_lines = filtered_lines[:num_lines]
-
-        return closest_lines
-
-    except Exception as e:
-        print("An error occurred during line detection:", str(e))
-        return []
+def detect_lines_in_circle(image, center):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, thresholded = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(thresholded, cv2.CHAIN_APPROX_NONE, cv2.CHAIN_APPROX_SIMPLE)
+    for contour in contours:
+        contour = np.squeeze(contour)
+        distances = np.linalg.norm(contour - center, axis=1)
+        threshold_distance = 80
+        if np.any(distances <= threshold_distance):
+            epsilon = 0.05 * cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, epsilon, True)
+            l1_a = tuple(approx[0][0])
+            l1_b = tuple(approx[1][0])
+            l2_a = tuple(approx[-2][0])
+            l2_b = tuple(approx[-1][0])
+            return [[l1_a,l1_b],[l2_a,l2_b]]
+    return None 
 
 
 
@@ -202,12 +183,16 @@ def detect_lines_in_circle(image, center, radius, num_lines=2):
 def determine_numbers(lines):
     allNums = {}
     for line in lines:
-        rho, theta = line[0]
-        angle_rad = np.abs(theta - np.pi / 2)  # angle relative to the positive x-axis
-
-        angle_deg = np.rad2deg(angle_rad)
-        # print(angle_deg)
-
+        print(line)
+        l1_a, l1_b = line
+        dx = l1_b[0] - l1_a[0]
+        dy = l1_b[1] - l1_a[1]
+        slope = dy/dx 
+        angle_in_radians = math.atan(slope)
+        angle_deg = angle_in_radians * 180 / math.pi
+        if angle_deg < 0:
+          angle_deg = 180 - abs(angle_deg)
+        print(angle_deg)
         numbers = []
         if angle_deg <= 15:
             numbers.extend([3, 9])
@@ -224,13 +209,18 @@ def determine_numbers(lines):
         else:
             numbers.extend([9, 3])
         allNums[tuple(numbers)] = 1
+    
     return allNums
 
 
 #step6
 def generate_timings(number_lists):
     number_pairs = list(itertools.product(*number_lists))  # Generating all possible pairs from different lists
-
+    # Generate reverse order pairs
+    reversed_pairs = [(pair[1], pair[0]) if len(pair) > 1 else pair for pair in number_pairs]
+    # Combine original pairs and reversed pairs
+    number_pairs = number_pairs + reversed_pairs
+    number_pairs = set(number_pairs)
     timings = []
     for pair in number_pairs:
         try:
