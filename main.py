@@ -38,6 +38,7 @@ def process_clock_image():
         radius = height // 2
         circularity = 0
     print("score after circle:",circle_score)
+    
     #step3
     numbers = extract_handwritten_numbers(processed_image)
     digits_score = (min(12,len(numbers)))/10 
@@ -45,13 +46,17 @@ def process_clock_image():
     print("score after digits:",digits_score)
 
     #step4
-    lines_in_circle = detect_lines_in_circle(processed_image, center, radius)
-    lines_score = min(2,len(lines_in_circle)*0.5 )
+    lines_in_circle = detect_lines_in_circle(processed_image, center)
+    if lines_in_circle is not None:
+        lines_score = min(2,len(lines_in_circle)*0.5 )
+    else:
+        lines_score = 0 
     print("score after lines:",lines_score)
 
     #step5
     numbers = determine_numbers(lines_in_circle)
     number_lists = list(numbers.keys())  # Convert dictionary keys to a list
+    
     #step6
     possible_timings = generate_timings(number_lists)
     print(possible_timings)
