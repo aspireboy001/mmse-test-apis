@@ -164,17 +164,19 @@ def detect_lines_in_circle(image, center):
     contours, _ = cv2.findContours(thresholded, cv2.CHAIN_APPROX_NONE, cv2.CHAIN_APPROX_SIMPLE)
     for contour in contours:
         contour = np.squeeze(contour)
+        if contour.shape[0] == 2:
+            continue
         distances = np.linalg.norm(contour - center, axis=1)
-        threshold_distance = 80
+        threshold_distance = image.shape[0]*0.1067
         if np.any(distances <= threshold_distance):
-            epsilon = 0.05 * cv2.arcLength(contour, True)
+            epsilon = 0.02 * cv2.arcLength(contour, True)
             approx = cv2.approxPolyDP(contour, epsilon, True)
             l1_a = tuple(approx[0][0])
             l1_b = tuple(approx[1][0])
             l2_a = tuple(approx[-2][0])
             l2_b = tuple(approx[-1][0])
             return [[l1_a,l1_b],[l2_a,l2_b]]
-    return None 
+    return None
 
 
 
