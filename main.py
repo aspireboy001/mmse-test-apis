@@ -34,7 +34,7 @@ def process_clock_image():
         #step4
         lines_in_circle = detect_lines_in_circle(image, center)
         if lines_in_circle is not None:
-            lines_score = min(2,len(lines_in_circle)*0.5 )
+            lines_score = min(1,len(lines_in_circle)*0.5 )
         else:
             lines_score = 0 
     print("score after circle:",circle_score)
