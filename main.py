@@ -31,12 +31,12 @@ def process_clock_image():
     if circle_info is not None:
         center, radius, circularity = circle_info
         circle_score = circularity
-    else:
-        # Set default values
-        height, width = processed_image.shape[:2]
-        center = (width // 2, height // 2)
-        radius = height // 2
-        circularity = 0
+        #step4
+        lines_in_circle = detect_lines_in_circle(image, center)
+        if lines_in_circle is not None:
+            lines_score = min(2,len(lines_in_circle)*0.5 )
+        else:
+            lines_score = 0 
     print("score after circle:",circle_score)
     
     #step3
@@ -45,12 +45,7 @@ def process_clock_image():
     digits_score = 1 ;
     print("score after digits:",digits_score)
 
-    #step4
-    lines_in_circle = detect_lines_in_circle(image, center)
-    if lines_in_circle is not None:
-        lines_score = min(2,len(lines_in_circle)*0.5 )
-    else:
-        lines_score = 0 
+    
     print("score after lines:",lines_score)
 
     #step5
