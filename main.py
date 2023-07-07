@@ -20,41 +20,32 @@ def process_clock_image():
     lines_score = 0.0 
     time_match_score = 0.0 
 
-    #step1 
     file_array = np.frombuffer(uploaded_file.read(), np.uint8)
     # Decode the numpy array into an image
     image = cv2.imdecode(file_array, cv2.IMREAD_COLOR)
     processed_image = preprocess_image(image)
 
-    #step2
+    number_lists = []
     circle_info = detect_circle(processed_image)
     if circle_info is not None:
         center, radius, circularity = circle_info
         circle_score = circularity
-        #step4
+        
         lines_in_circle = detect_lines_in_circle(image, center)
         if lines_in_circle is not None:
             lines_score = min(1,len(lines_in_circle)*0.5 )
         else:
             lines_score = 0 
-    print("score after circle:",circle_score)
+
+        numbers = determine_numbers(lines_in_circle)
+        number_lists = list(numbers.keys())  
     
-    #step3
     numbers = extract_handwritten_numbers(processed_image)
     digits_score = (min(12,len(numbers)))/10 
     digits_score = 1 ;
-    print("score after digits:",digits_score)
-
     
-    print("score after lines:",lines_score)
-
-    #step5
-    numbers = determine_numbers(lines_in_circle)
-    number_lists = list(numbers.keys())  # Convert dictionary keys to a list
-    
-    #step6
     possible_timings = generate_timings(number_lists)
-    print(possible_timings)
+    
     match = 0 
     if len(possible_timings) > 0:
         for i, timing in enumerate(possible_timings):
@@ -64,8 +55,6 @@ def process_clock_image():
     
     time_match_score = match 
     total_score = circle_score + digits_score + lines_score + time_match_score
-
-    print("score after match:",time_match_score)
 
     response = {
         'total_score': total_score,
