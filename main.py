@@ -118,7 +118,7 @@ def get_random_animals():
     for animal in random_animals:
         animal_data = {
             'name': animal['name'],
-            'image': f'static/img/{animal["image"]}'
+            'image': f'https://mmse-test-api.onrender.com/static/img/{animal["image"]}'
         }
         response.append(animal_data)
 
