@@ -127,14 +127,17 @@ def get_random_animals():
 
 @app.route('/animal-guess', methods=['POST'])
 def process_animal_guess():
-    data = request.get_json()
-    user_guess = data['guessed_animal']
-    actual = data['actual_animal']
-    score = 0 
-    if actual.lower() == user_guess.lower():
-        score += 1 
-    
-    return jsonify({'score': score})
+    guesses = request.get_json()  
+    correct_guesses = 0
+
+    for guess in guesses:
+        actual_animal = guess['actual_animal']
+        guessed_animal = guess['guessed_animal']
+
+        if actual_animal.lower() == guessed_animal.lower():
+            correct_guesses += 1
+
+    return jsonify({'score': correct_guesses})
 
 
 
