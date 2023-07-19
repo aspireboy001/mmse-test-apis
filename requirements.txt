@@ -5,4 +5,7 @@ tensorflow
 keras 
 Pillow 
 matplotlib
+pyttsx3
+pygame
+SpeechRecognition
 gunicorn
