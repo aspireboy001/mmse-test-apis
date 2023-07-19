@@ -180,8 +180,10 @@ class MMSE_Tests:
         user_answers = list(set([word.lower() for word in user_words]))
 
         score = 0
-        for answer in actual_answers:
-            if answer in user_answers:
+        for i in range(0,len(user_answers)):
+            if i >= len(actual_answers):
+                break
+            if user_answers[i] == actual_answers[i]:
                 score += 1
 
         return jsonify({'score': score})
